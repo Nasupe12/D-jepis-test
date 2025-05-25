@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <title>Test: Jan Hus a husitství</title>
+  <style>
+    body { font-family: sans-serif; max-width: 800px; margin: auto; padding: 20px; }
+    .question { margin-bottom: 20px; }
+    .option {
+      display: block; margin: 5px 0; padding: 10px; border: 1px solid #ccc;
+      border-radius: 5px; cursor: pointer;
+    }
+    .option.correct { background-color: #c8f7c5; }
+    .option.wrong { background-color: #f7c5c5; }
+    .hidden { display: none; }
+    #result { font-weight: bold; font-size: 18px; margin-top: 20px; }
+    button { margin-top: 20px; padding: 10px 20px; font-size: 16px; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+<h1>Test: Jan Hus a husitství</h1>
+<div id="quiz"></div>
+<div id="result" class="hidden"></div>
+<button id="restartBtn" class="hidden">Opakovat test</button>
+
+<script>
+const questions = [
+  {question: "Kým byl Jan Hus?", options: ["králem", "papežem", "univerzitním mistrem a rektorem Karlovy univerzity", "mnichem v Táboře"], answer: "univerzitním mistrem a rektorem Karlovy univerzity"},
+  {question: "Kde Jan Hus kázal?", options: ["v Betlémské kapli", "na Karlštejně", "v Táboře", "v Klementinu"], answer: "v Betlémské kapli"},
+  {question: "Co Jan Hus kritizoval?", options: ["německé rytíře", "českou šlechtu", "papežské schizma a nešvary v církvi", "krále Zikmunda"], answer: "papežské schizma a nešvary v církvi"},
+  {question: "Kdo ho zpočátku chránil?", options: ["Karel IV.", "Zikmund Lucemburský", "Václav IV.", "Prokop Holý"], answer: "Václav IV."},
+  {question: "Proč odešel Jan Hus z Prahy?", options: ["kvůli válce", "kvůli hladomoru", "kvůli papežské klatbě a zákazu bohoslužeb", "protože se stal králem"], answer: "kvůli papežské klatbě a zákazu bohoslužeb"},
+  {question: "Kam odešel Jan Hus kázat?", options: ["do Kutné Hory", "na venkov", "do Olomouce", "do Vídně"], answer: "na venkov"},
+  {question: "Kdy byl pozván na koncil?", options: ["1410", "1412", "1414", "1416"], answer: "1414"},
+  {question: "Kdo svolal koncil do Kostnice?", options: ["Václav IV.", "Karel IV.", "Zikmund Lucemburský", "Jan Žižka"], answer: "Zikmund Lucemburský"},
+  {question: "Jak Jan Hus zemřel?", options: ["byl popraven mečem", "byl upálen 6. července 1415", "byl oběšen", "zemřel přirozeně"], answer: "byl upálen 6. července 1415"},
+  {question: "Jak se nazývali Husovi stoupenci?", options: ["žoldnéři", "husité nebo kališníci", "táboři", "žebraví mniši"], answer: "husité nebo kališníci"},
+  {question: "Co symbolizoval kalich?", options: ["válku", "víru", "přijímání pod obojí", "smíření"], answer: "přijímání pod obojí"},
+  {question: "Jak se jmenoval radikální směr husitů?", options: ["kališníci", "umírnění", "táborité", "měšťané"], answer: "táborité"},
+  {question: "Kdo byl slavný husitský vojevůdce?", options: ["Karel IV.", "Jan Žižka z Trocnova", "Jan Hus", "Jan Rokycana"], answer: "Jan Žižka z Trocnova"},
+  {question: "Co udělali husité při první pražské defenestraci?", options: ["spálili radnici", "vyházeli konšely z okna", "napadli křižáky", "utekli z Prahy"], answer: "vyházeli konšely z okna"},
+  {question: "Jak zemřel král Václav IV.?", options: ["byl zavražděn", "zemřel stářím", "dostal srdeční záchvat", "zavraždili ho husité"], answer: "dostal srdeční záchvat"},
+  {question: "V jaké bitvě husité porazili křižáky?", options: ["u Lipan", "na Bílé hoře", "na hoře Vítkov", "v Táboře"], answer: "na hoře Vítkov"},
+  {question: "Jak se jmenovala slavná výprava husitů za hranice?", options: ["křížové tažení", "spanilé jízdy", "dobývací mise", "husitský pochod"], answer: "spanilé jízdy"},
+  {question: "Kdy se odehrála bitva u Lipan?", options: ["1436", "1415", "1434", "1420"], answer: "1434"}
+];
+
+let current = 0;
+let score = 0;
+let shuffled = [];
+
+function shuffle(array) {
+  return array.sort(() => Math.random() - 0.5);
+}
+
+function showQuestion() {
+  const quiz = document.getElementById('quiz');
+  quiz.innerHTML = '';
+
+  if (current >= shuffled.length) {
+    document.getElementById('result').textContent = `Měl jsi správně ${score} z ${shuffled.length} otázek.`;
+    document.getElementById('result').classList.remove('hidden');
+    document.getElementById('restartBtn').classList.remove('hidden');
+    return;
+  }
+
+  const q = shuffled[current];
+  const qDiv = document.createElement('div');
+  qDiv.className = 'question';
+  qDiv.innerHTML = `<strong>${q.question}</strong>`;
+
+  q.options.forEach(option => {
+    const opt = document.createElement('div');
+    opt.className = 'option';
+    opt.textContent = option;
+    opt.onclick = () => {
+      if (opt.clicked) return;
+      opt.clicked = true;
+      if (option === q.answer) {
+        opt.classList.add('correct');
+        score++;
+      } else {
+        opt.classList.add('wrong');
+      }
+
+      Array.from(qDiv.querySelectorAll('.option')).forEach(o => {
+        o.onclick = null;
+        if (o.textContent === q.answer) o.classList.add('correct');
+      });
+
+      setTimeout(() => {
+        current++;
+        showQuestion();
+      }, 1000);
+    };
+    qDiv.appendChild(opt);
+  });
+
+  quiz.appendChild(qDiv);
+}
+
+function startQuiz() {
+  current = 0;
+  score = 0;
+  shuffled = shuffle([...questions]);
+  document.getElementById('result').classList.add('hidden');
+  document.getElementById('restartBtn').classList.add('hidden');
+  showQuestion();
+}
+
+document.getElementById('restartBtn').onclick = startQuiz;
+window.onload = startQuiz;
+</script>
+
+</body>
+</html>
